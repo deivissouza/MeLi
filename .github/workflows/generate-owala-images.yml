@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/generate-owala-images.yml'
+      - 'scripts/generate_owala_images.py'
 
 permissions:
   contents: write
