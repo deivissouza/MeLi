@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="1000" viewBox="0 0 1000 1000">
+<rect width="1000" height="1000" fill="#fff"/>
+<ellipse cx="470" cy="890" rx="280" ry="42" fill="#000" opacity=".10"/>
+<rect x="285" y="220" width="360" height="650" rx="115" fill="#151515"/>
+<rect x="285" y="160" width="360" height="210" rx="115" fill="#1E1E1E"/>
+<rect x="350" y="110" width="230" height="155" rx="72" fill="#121212"/>
+<circle cx="372" cy="205" r="10" fill="#8A8A8A"/><circle cx="558" cy="205" r="10" fill="#8A8A8A"/>
+<path d="M350 235 Q465 205 580 235 L580 300 Q465 345 350 300Z" fill="#A78BFA"/>
+<text x="465" y="286" text-anchor="middle" font-family="Arial, sans-serif" font-size="58" font-weight="700" fill="#FFFFFF">Nome</text>
+<!-- detached plate with visible fitting tab -->
+<g transform="translate(590 650)">
+  <path d="M78 0 H250 Q270 0 270 20 V90 H58 V20 Q58 0 78 0Z" fill="#A78BFA"/>
+  <path d="M20 72 H308 V192 Q164 315 20 192Z" fill="#A78BFA"/>
+  <circle cx="164" cy="93" r="10" fill="#fff" stroke="#bbb" stroke-width="2"/>
+  <text x="164" y="190" text-anchor="middle" font-family="Arial, sans-serif" font-size="50" font-weight="700" fill="#FFFFFF">Nome</text>
+</g>
+<text x="60" y="940" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#111">Innova Brindes</text>
+<text x="940" y="940" text-anchor="end" font-family="Arial, sans-serif" font-size="30" fill="#555">Lilas</text>
+</svg>
