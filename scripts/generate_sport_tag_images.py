@@ -133,3 +133,23 @@ for x,n,nu,r in [(150,"LUCAS","7",125),(330,"PEDRO","9",135),(520,"RODRIGO","10"
 im.save(OUT/"08-times.jpg",quality=92,optimize=True)
 
 print("Galeria SPORT-TAG gerada")
+
+# 9 variacoes individuais
+variation_colors = [
+    ("preto-branco","#111111","#FFFFFF"),
+    ("branco-preto","#F7F7F7","#111111"),
+    ("azul-branco","#2563EB","#FFFFFF"),
+    ("vermelho-branco","#EF4444","#FFFFFF"),
+    ("verde-branco","#16A34A","#FFFFFF"),
+    ("amarelo-preto","#FACC15","#111111"),
+    ("rosa-branco","#EC4899","#FFFFFF"),
+    ("lilas-branco","#A855F7","#FFFFFF"),
+    ("laranja-preto","#F97316","#111111"),
+]
+for slug, primary, secondary in variation_colors:
+    im=base(); d=ImageDraw.Draw(im,"RGBA")
+    tag(d,500,590,260,primary=primary,secondary=secondary,name="NOME",num="10")
+    im.save(OUT/f"variacao-{slug}.jpg",quality=92,optimize=True)
+
+print("Variações individuais SPORT-TAG geradas")
+
