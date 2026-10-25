@@ -74,3 +74,5 @@ def draw_keychain(name, base, dark):
 
 for n,(base,dark) in COLORS.items():
     draw_keychain(n,base,dark)
+
+# trigger workflow
