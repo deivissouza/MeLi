@@ -151,3 +151,5 @@ d.text((500,835),"Espessura aprox.: 1 mm   |   Corrente: aprox. 45 cm",font=font
 im.save(OUT/"04-medidas.jpg","JPEG",quality=92,optimize=True)
 
 print("generated", len(list(OUT.glob("*.jpg"))), "images")
+
+# trigger
