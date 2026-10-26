@@ -1,0 +1,29 @@
+name: Gerar imagens colar coração
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'scripts/generate_colar_coracao_images.py'
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pillow
+      - run: python scripts/generate_colar_coracao_images.py
+      - name: Commit images
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add imagens/colar-coracao-personalizado/*.jpg
+          git diff --cached --quiet && exit 0
+          git commit -m "Gera imagens do colar coração personalizado"
+          git push
