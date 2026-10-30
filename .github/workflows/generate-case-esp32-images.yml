@@ -1,0 +1,29 @@
+name: Gerar JPG do Case ESP32
+on:
+  push:
+    paths:
+      - 'scripts/generate_case_esp32_basic.py'
+      - 'imagens/case-esp32-micro-usb-30p/*.svg'
+      - '.github/workflows/generate-case-esp32-images.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  gerar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install cairosvg pillow
+      - run: python scripts/generate_case_esp32_basic.py
+      - name: Publicar imagens JPG
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add imagens/case-esp32-micro-usb-30p/*.jpg
+          if ! git diff --cached --quiet; then
+            git commit -m "Gera imagens JPG basicas do case ESP32"
+            git push
+          fi
