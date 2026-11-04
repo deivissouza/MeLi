@@ -1,0 +1,29 @@
+name: Gerar imagens das variacoes Colar Coracao V2
+on:
+  push:
+    paths:
+      - 'scripts/gerar_variacoes_colar_coracao_v2.py'
+      - '.github/workflows/gerar-variacoes-colar-coracao-v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  publicar-variacoes:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install pillow
+      - run: python scripts/gerar_variacoes_colar_coracao_v2.py
+      - name: Publicar quatro JPGs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add imagens/colar-coracao-personalizado-v2/variacao-*.jpg
+          if ! git diff --cached --quiet; then
+            git commit -m "Publica 4 imagens individuais de variacao do colar coracao V2"
+            git pull --rebase
+            git push
+          fi
