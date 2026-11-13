@@ -38,7 +38,7 @@ jobs:
                   if target.exists() and not old.exists():
                       shutil.copy2(target,old)
                   buf=z.read(name)
-                  if not buf.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+                  if not buf.startswith(bytes.fromhex("89504e470d0a1a0a")):
                       raise RuntimeError("PNG inválido: "+name)
                   target.write_bytes(buf)
                   print("Atualizada:",target)
