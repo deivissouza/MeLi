@@ -1,0 +1,93 @@
+name: Atualizar galeria chaveiro foto inox realista
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/atualizar-chaveiro-foto-inox-realista.yml"
+permissions:
+  contents: write
+jobs:
+  atualizar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Preparar Pillow
+        run: pip install pillow requests
+      - name: Atualizar as nove artes preservando a diagramação
+        env:
+          FOTO_REFERENCIA: "https://media.canva.com/v2/image-resize/format:PNG/height:200/quality:100/uri:ifs%3A%2F%2FM%2Ff87554d9-ce45-4f85-aa82-43f2a9ca8a6a/watermark:F/width:200?csig=AAAAAAAAAAAAAAAAAAAAAIUUfdtI2PBdQczMo48T5SzuL4ATLqUFUa4xnYBgqYD4&exp=1794584437&osig=AAAAAAAAAAAAAAAAAAAAAIHuTloK3TdjmAMJCF0OjUZMhS97LHnS8YpY12c14pO4&signer=media-rpc&token=AAIAAU0AJGY4NzU1NGQ5LWNlNDUtNGY4NS1hYTgyLTQzZjJhOWNhOGE2YQAAAAABodWRYQg9zdJRi7qaVtAmK7l68UHnmkRGJ4oQtWsBEe3CL8dujg&x-canva-quality=thumbnail"
+        run: |
+          python - <<'PY'
+          from PIL import Image, ImageOps, ImageEnhance, ImageFilter, ImageDraw
+          from pathlib import Path
+          import requests,io,os,random,shutil
+          folder=Path("imagens/chaveiro-foto-inox")
+          backups=folder/"originais-antes-realismo"
+          backups.mkdir(exist_ok=True)
+          filenames=[
+            "01-capa.png","02-modelo-foto-frente.png","03-modelo-foto-frase-verso.png",
+            "04-modelo-calendario.png","05-modelo-musica.png","06-modelo-dirija-com-cuidado.png",
+            "07-medidas.png","08-como-personalizar.png","09-modelos.png",
+          ]
+          boxes={
+            "01-capa.png":(239,588,586,1067),
+            "02-modelo-foto-frente.png":(424,596,777,1085),
+            "03-modelo-foto-frase-verso.png":(189,594,512,1045),
+            "04-modelo-calendario.png":(688,594,1017,1044),
+            "05-modelo-musica.png":(192,594,515,1047),
+            "08-como-personalizar.png":(760,610,1062,1045),
+            "09-modelos.png":(56,557,209,780),
+          }
+          for f in filenames:
+            p=folder/f
+            if not p.exists(): raise RuntimeError("Arquivo ausente: "+str(p))
+            backup=backups/f
+            if not backup.exists(): shutil.copy2(p,backup)
+          r=requests.get(os.environ["FOTO_REFERENCIA"],timeout=30)
+          r.raise_for_status()
+          image=Image.open(io.BytesIO(r.content)).convert("RGB")
+          if image.width < 180: raise RuntimeError("Referência de baixa resolução")
+          # Portrait area of generated realistic etched couple on metal.
+          photo=image.crop((13,48,107,190))
+          photo=ImageEnhance.Contrast(photo).enhance(1.18)
+          photo=ImageEnhance.Sharpness(photo).enhance(1.9)
+          for f in filenames:
+            p=folder/f
+            src=Image.open(backups/f).convert("RGB")
+            if f in boxes:
+              x1,y1,x2,y2=boxes[f]
+              w,h=x2-x1,y2-y1
+              engraving=ImageOps.fit(photo,(w,h),method=Image.Resampling.LANCZOS,centering=(0.5,0.45))
+              engraving=ImageOps.grayscale(engraving)
+              # grayscale tone and subtle etched-dot rendering, no color printing
+              engraving=ImageEnhance.Contrast(engraving).enhance(1.32)
+              engraving=engraving.filter(ImageFilter.UnsharpMask(radius=1.0,percent=110,threshold=2))
+              out=Image.new("RGB",(w,h))
+              px=engraving.load(); dst=out.load()
+              rnd=random.Random(831)
+              for y in range(h):
+                for x in range(w):
+                  lum=px[x,y]
+                  tone=int(211-(255-lum)*.72)
+                  if (x+y)%3==0: tone-=5
+                  tone+=rnd.randint(-3,3)
+                  tone=max(64,min(225,tone))
+                  dst[x,y]=(tone,tone,tone)
+              # photo stays entirely inside original laser-engraving area;
+              # original product outline and texts are untouched.
+              src.paste(out,(x1,y1))
+            else:
+              # non-photographic images: sharpen minimally; preserve all words and dimensions.
+              src=src.filter(ImageFilter.UnsharpMask(radius=.45,percent=55,threshold=4))
+            src.save(p,format="PNG",optimize=True)
+          print("Updated:",len(filenames),"Backups:",len(list(backups.glob("*.png"))))
+          PY
+      - name: Publicar e manter cópias originais
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add imagens/chaveiro-foto-inox
+          if git diff --cached --quiet; then echo "Sem alterações"; else
+            git commit -m "Atualizar 9 artes do chaveiro inox com retrato realista e preservar originais"
+            git push
+          fi
