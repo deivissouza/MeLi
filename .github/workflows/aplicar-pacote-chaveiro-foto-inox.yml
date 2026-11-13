@@ -1,0 +1,58 @@
+name: Aplicar novas imagens chaveiro inox
+on:
+  push:
+    paths:
+      - "imagens/chaveiro-foto-inox/PACOTE_ATUALIZACAO.zip"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  atualizar-imagens:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Aplicar os PNGs da pasta sem perder originais
+        run: |
+          python - <<'PY'
+          from zipfile import ZipFile
+          from pathlib import Path
+          import shutil
+          folder=Path("imagens/chaveiro-foto-inox")
+          pkg=folder/"PACOTE_ATUALIZACAO.zip"
+          if not pkg.exists():
+              print("Nenhum pacote para processar; mantendo imagens existentes.")
+              raise SystemExit(0)
+          names={
+              "01-capa.png","02-modelo-foto-frente.png","03-modelo-foto-frase-verso.png",
+              "05-modelo-musica.png","08-como-personalizar.png","09-modelos.png"
+          }
+          originals=folder/"originais-antes-realismo"
+          originals.mkdir(exist_ok=True)
+          with ZipFile(pkg) as z:
+              for name in names:
+                  if name not in z.namelist():
+                      raise RuntimeError("Arquivo ausente no pacote: "+name)
+              for name in sorted(names):
+                  target=folder/name
+                  old=originals/name
+                  if target.exists() and not old.exists():
+                      shutil.copy2(target,old)
+                  buf=z.read(name)
+                  if not buf.startswith(b"\\x89PNG\\r\\n\\x1a\\n"):
+                      raise RuntimeError("PNG inválido: "+name)
+                  target.write_bytes(buf)
+                  print("Atualizada:",target)
+          pkg.unlink()
+          print("Atualização concluída: 6 imagens; 04, 06 e 07 preservadas.")
+          PY
+      - name: Commit das seis imagens
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add imagens/chaveiro-foto-inox
+          if git diff --cached --quiet; then
+            echo "Nenhuma alteração."
+          else
+            git commit -m "Aplicar seis artes realistas do chaveiro inox"
+            git push
+          fi
